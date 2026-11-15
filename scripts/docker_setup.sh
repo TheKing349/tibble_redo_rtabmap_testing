@@ -9,7 +9,7 @@
 #               setup for this repository. Run it before composing the containers,
 #               and in some cases run it anytime you restart your computer.
 #               This script does NOT install docker, it assumes it is already installed.
-# USAGE:        ./scripts/docker_setup.sh [-l] [-w] [-m]
+# USAGE:        sudo ./scripts/docker_setup.sh [-l] [-w] [-m]
 # DEPENDS:      bash, unzip
 # LICENSE:      Apache 2.0
 # -----------------------------------------------------------------------------
@@ -39,6 +39,31 @@ fi
 
 if [[ $LINUX == 1 ]]; then
     xhost + local:
+
+    RULES_FILE=/etc/udev/rules.d/99-realsense-libusb.rules
+    IIO_RULES_FILE=/etc/udev/rules.d/99-realsense-iio.rules
+    RELOAD=0
+
+    if [[ ! -f $RULES_FILE ]]; then
+        sudo curl -fsSL \
+            https://raw.githubusercontent.com/IntelRealSense/librealsense/master/config/99-realsense-libusb.rules \
+            -o "$RULES_FILE" || { echo "[ERROR] Failed to download udev rules"; exit 1; }
+        RELOAD=1
+    fi
+
+    # The upstream rules chmod the sysfs files but leave /dev/iio* as root-only,
+    # which blocks the D435i IMU for non-root users (e.g. inside the container).
+    if [[ ! -f $IIO_RULES_FILE ]]; then
+        echo 'SUBSYSTEM=="iio", ATTRS{idVendor}=="8086", ATTRS{idProduct}=="0b3a", MODE="0666"' \
+            | sudo tee "$IIO_RULES_FILE" > /dev/null
+        RELOAD=1
+    fi
+
+    if [[ $RELOAD == 1 ]]; then
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger
+    fi
+    
     echo "[SUCCESS] Linux is configured. This will need to be ran every time you restart your computer."
 elif [[ $WSL == 1 ]]; then
     echo "[REQUEST] What is your windows username? Case sensitive. Press enter to continue."
