@@ -4,7 +4,7 @@
 # FILE:         docker_setup.sh
 # AUTHOR:       Ella Moody <moodyellam@gmail.com> (Linux and Windows), Aiden Kimmerling <https://github.com/TheKing349> (macOS)
 # CREATED:      07-02-2026
-# LAST EDITED:  10-15-2026
+# LAST EDITED:  11-19-2026
 # DESCRIPTION:  This script configures the HOST MACHINE to run the docker container
 #               setup for this repository. Run it before composing the containers,
 #               and in some cases run it anytime you restart your computer.
@@ -66,6 +66,9 @@ if [[ $LINUX == 1 ]]; then
     
     echo "[SUCCESS] Linux is configured. This will need to be ran every time you restart your computer."
 elif [[ $WSL == 1 ]]; then
+    echo "[REQUEST] What is your windows username? Case sensitive. Press enter to continue."
+    read -r USERNAME
+    
     # Turns out the C_DRIVE location can change based on bash
     #   terminal emulator. These *should* be the only 2 options 
     if [ -d "/mnt/c" ]; then
@@ -78,6 +81,13 @@ elif [[ $WSL == 1 ]]; then
     fi
 
     DIR="$C_DRIVE/Users/$USERNAME"
+
+    # Unzip may not be installed in WSL by default
+    if ! command -v unzip &> /dev/null; then
+        echo "[INFO] Installing required program: unzip..."
+        echo "[INFO] A password may be required to install"
+        sudo apt install unzip
+    fi
 
     echo "[INFO] Downloading and unzipping the custom kernel made by Aiden Kimmerling (thank you Aiden)..."
     
