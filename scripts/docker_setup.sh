@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # -----------------------------------------------------------------------------
 # FILE:         docker_setup.sh
@@ -66,26 +66,36 @@ if [[ $LINUX == 1 ]]; then
     
     echo "[SUCCESS] Linux is configured. This will need to be ran every time you restart your computer."
 elif [[ $WSL == 1 ]]; then
-    echo "[REQUEST] What is your windows username? Case sensitive. Press enter to continue."
-    read -r USERNAME
+    # Turns out the C_DRIVE location can change based on bash
+    #   terminal emulator. These *should* be the only 2 options 
+    if [ -d "/mnt/c" ]; then
+        C_DRIVE="/mnt/c"
+    elif [ -d "/c" ]; then
+        C_DRIVE="/c"
+    else
+        echo "Error: Could not find Windows C: drive mount." >&2
+        exit 1
+    fi
 
-    DIR="/mnt/c/Users/$USERNAME"
+    DIR="$C_DRIVE/Users/$USERNAME"
 
     echo "[INFO] Downloading and unzipping the custom kernel made by Aiden Kimmerling (thank you Aiden)..."
-    wget https://github.com/TheKing349/WSL2-Linux-Kernel/releases/latest/download/vmlinux+modules.zip -O $DIR/Downloads/VMLinuxPlusModules.zip
+    
+    curl -L https://github.com/TheKing349/WSL2-Linux-Kernel/releases/latest/download/vmlinux+modules.zip -o $DIR/Downloads/VMLinuxPlusModules.zip
     unzip -e $DIR/Downloads/VMLinuxPlusModules.zip -d $DIR/Downloads/VMLinuxPlusModules
 
     echo "[INFO] Creating a new directory and moving folder contents there..."
-    mkdir -p "/mnt/c/Users/$USERNAME/wsl"
+    mkdir -p "$DIR/wsl"
     mv $DIR/Downloads/VMLinuxPlusModules/modules.vhdx $DIR/wsl
     mv $DIR/Downloads/VMLinuxPlusModules/vmlinux $DIR/wsl
 
     echo "[INFO] Creating the wsl configuration file.."
     # This breaks if there's indentation just go with it
-cat << EOF > "$DIR/wsl/.wsl.config"
+    # Needs double backslashes and each backslash needs an escape
+cat << EOF > "$DIR/.wslconfig"
 [wsl2]
-kernel=C:\\Users\\$USERNAME\\wsl\\vmlinux
-kernelModules=C:\\Users\\$USERNAME\\wsl\\modules.vhdx
+kernel="C:\\\\Users\\\\$USERNAME\\\\wsl\\\\vmlinux"
+kernelModules="C:\\\\Users\\\\$USERNAME\\\\wsl\\\\modules.vhdx"
 EOF
 
     echo "[REQUEST] To load the custom kernel, you have to restart WSL. This script will shut it down for you, and then you can open a terminal and type wsl to start it again."
