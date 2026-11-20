@@ -12,7 +12,7 @@ FROM ros:${ROS_DISTRO}-ros-base
 
 #################### ENV SETUP ####################
 ARG USERNAME=ubuntu
-ARG REPO_NAME=tibble_redo
+ARG REPO_NAME=tibble_redo_rtabmap
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
