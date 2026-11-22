@@ -23,10 +23,10 @@ launch:
               value: "True"
 
             # (Optional) Wheel Odometry
-            # - name: "odom_topic_name"
-            #   value: "/diff_drive_controller/odom"
-            # - name: "odom_sensor_label"
-            #   value: "odom_wheels"
+            - name: "odom_topic_name"
+              value: "/diff_drive_controller/odom"
+            - name: "odom_sensor_label"
+              value: "odom_wheels"
 
             # Pipeline
             - name: "mola_lo_pipeline"
