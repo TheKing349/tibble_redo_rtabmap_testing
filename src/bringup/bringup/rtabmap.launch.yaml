@@ -1,0 +1,43 @@
+%YAML 1.2
+---
+launch:
+  - group:
+      # Shared parameters
+      - set_parameters_from_file:
+          filename: "$(find-pkg-share bringup)/config/rtabmap.yaml"
+
+      # Simulation time
+      - set_parameter:
+          name: use_sim_time
+          value: "$(var use_sim)"
+
+      # Shared remappings
+      - set_remap: {from: "imu", to: "/imu/out"}
+      - set_remap: {from: "rgb/image", to: "/camera/depth_1/color/image_raw"}
+      - set_remap: {from: "rgb/camera_info", to: "/camera/depth_1/camera_info"}
+      - set_remap: {from: "depth/image", to: "/camera/depth_1/depth/image_rect_raw"}
+
+      # Nodes
+      # - node:
+      #     pkg: "rtabmap_odom"
+      #     exec: "rgbd_odometry"
+      #     name: "rgbd_odometry"
+      #     output: screen
+
+      - node:
+          pkg: "rtabmap_sync"
+          exec: "rgbd_sync"
+          name: "rgbd_sync"
+          output: screen
+
+      - node:
+          pkg: "rtabmap_slam"
+          exec: "rtabmap"
+          name: "rtabmap_slam"
+          output: screen
+
+      - node:
+          pkg: "rtabmap_viz"
+          exec: "rtabmap_viz"
+          name: "rtabmap_viz"
+          output: screen

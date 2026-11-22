@@ -1,0 +1,9 @@
+/**:
+  ros__parameters:
+    # frame_id: camera_link
+    subscribe_depth: true
+    subscribe_scan: true
+    subscribe_odom_info: false
+    approx_sync: true
+    wait_imu_to_init: true
+    qos: 1

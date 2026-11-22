@@ -124,3 +124,7 @@ launch:
       children:
         - include:
             file: "$(find-pkg-share bringup)/bringup/odometry.launch.yaml"
+
+  # R-Tab Map launch
+  - include:
+      file: "$(find-pkg-share bringup)/bringup/rtabmap.launch.yaml"
